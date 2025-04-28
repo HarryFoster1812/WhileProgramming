@@ -47,7 +47,6 @@ public class Main {
             case 2:
                 program -= 2;
                 program /= 4;
-                program--;
                 values = inverse_phi(program);
 
                 yield inverse_phi_s(values[0]) + ";" + inverse_phi_s(values[1]);
@@ -58,7 +57,7 @@ public class Main {
                 int[] statements = inverse_phi(values[1]);
                 yield "if " + inverse_phi_b(values[0]) + " then \n" + inverse_phi_s(statements[0], indentation + 1)
                         + " else\n"
-                        + inverse_phi_s(statements[0], indentation + 1) + "";
+                        + inverse_phi_s(statements[1], indentation + 1) + "";
             default:
                 yield "";
 
@@ -141,18 +140,14 @@ public class Main {
 
     }
 
-    public static int[] inverse_phi(int program) {
-        program += 1;
-
-        int m = 0, n = 0;
-        while (program % 2 == 0) {
-            m++;
-            program /= 2;
+    public static int[] inverse_phi(int value) {
+        value += 1;
+        int m = 0;
+        while (value % 2 == 0) {
+            m += 1;
+            value /= 2;
         }
-        program /= Math.pow(2, m);
-        program--;
-        program /= 2;
-
-        return new int[] { m, program };
+        int n = (value - 1) / 2;
+        return new int[] { m, n };
     }
 }

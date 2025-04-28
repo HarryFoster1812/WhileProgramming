@@ -4,26 +4,18 @@
 #include <string.h>
 #include <math.h>
 
+bool DEBUG = false;
+
 int countDigits(int num){
-    int count = 1;
-    while(num > 10){
-        num = num/10;
+    if (num == 0) return 1; // 0 has 1 digit
+    int count = 0;
+    while(num != 0){
+        num /= 10;
         count++;
     }
-    return count;
+    return count;count;
 }
 
-int int_pow(int a, int b){
-    if (b == 0){
-        return 1;
-    }
-    int result = 1;
-    while(b != 0){
-        result *= a;
-        b--;
-    }
-    return result;
-}
 
 struct String {
     char* string;
@@ -33,9 +25,10 @@ struct String {
 void freeString(struct String* head){
     struct String* tmp;
     while(head != NULL){
-       tmp = head;
-       head = head->next;
-       free(tmp);
+        tmp = head;
+        head = head->next;
+        free(tmp->string);
+        free(tmp);
     }
 }
 
@@ -47,16 +40,19 @@ struct String* endOfString(struct String* head){
 }
 
 struct String* newString(char* inputString){
+    if (DEBUG) printf("String to allocate %s\n", inputString);
     struct String* string = malloc(sizeof(struct String));
     string->string = malloc((strlen(inputString)+1)*sizeof(char));
     strcpy(string->string, inputString);
+    string->next = NULL;
     return string;
 }
 
 struct String* newStringFromInt(int index){
     struct String* head = malloc(sizeof(struct String));
-    head->string = malloc((countDigits(index)+1)*sizeof(int));
+    head->string = malloc((countDigits(index)+1)*sizeof(char));
     sprintf(head->string, "%d", index);
+    head->next = NULL;
     return head;
 }
 
@@ -76,14 +72,29 @@ struct String* createIndentation(int spaceCount){
 
 
 int* inverse_phi(int index){
-
+    if(DEBUG)
+    printf("ENTER INVERSE PHI: %d\n", index);
+    
     int* mn = calloc(2, sizeof(int));
     mn[1] = ++index;
-    while(index % 2 == 0){
+    
+    if(DEBUG){
+        printf("VALUE M: %d\n", mn[0]);
+        printf("VALUE N: %d\n\n", mn[1]);
+    }
+
+    while(mn[1] % 2 == 0){
+
         mn[0]++;
         mn[1]/=2;
+        
+        if (DEBUG){
+        printf("VALUE M: %d\n", mn[0]);
+        printf("VALUE N: %d\n\n", mn[1]);
+    
+        }
     }
-    mn[1] /= int_pow(2, mn[0]);
+
     mn[1]--;
     mn[1]/=2;
     
@@ -103,6 +114,10 @@ struct String* inverse_phi_variable(int index) {
 }
 
 struct String* inverse_phi_arithmetic(int index){
+    if (DEBUG){
+    printf("INVERSE ARITHMETIC: %d\n", index);
+    printf("CASE: %d\n", index%5);
+    }
     int* values;
     struct String* str;
     struct String* end;
@@ -126,6 +141,7 @@ struct String* inverse_phi_arithmetic(int index){
             end->next = newString(" + ");
             end = end->next;
             end->next = inverse_phi_arithmetic(values[1]);
+            free(values);
             return str;
         
         case 3:
@@ -138,18 +154,25 @@ struct String* inverse_phi_arithmetic(int index){
             end->next = newString(" - ");
             end = end->next;
             end->next = inverse_phi_arithmetic(values[1]);
+            free(values);
             return str;
 
         case 4:
             index -= 4;
             index /= 5;
+            
             values = inverse_phi(index);
+            if (DEBUG){
+                printf("VALUE M: %d\n", values[0]);
 
+                printf("VALUE N %d\n", values[1]);
+            }
             str = inverse_phi_arithmetic(values[0]);
             end =  endOfString(str);
             end->next = newString(" \\times ");
             end = end->next;
             end->next = inverse_phi_arithmetic(values[1]);
+            free(values);
             return str;
     }
 }
@@ -170,8 +193,9 @@ struct String* inverse_phi_boolean(int index){
         case 0:
             index -= 4;
             index /= 4;
-            str = newString("\\lnot ");
+            str = newString(" \\lnot ");
             str->next = inverse_phi_boolean(index);
+            free(values);
             return str;
         
         case 1:
@@ -184,6 +208,7 @@ struct String* inverse_phi_boolean(int index){
             end->next = newString(" \\land ");
             end = end->next;
             end->next = inverse_phi_boolean(values[1]);
+            free(values);
             return str;
 
         case 2:
@@ -196,6 +221,7 @@ struct String* inverse_phi_boolean(int index){
             end->next = newString(" = ");
             end = end->next;
             end->next = inverse_phi_arithmetic(values[1]);
+            free(values);
             return str;
         
         case 3:
@@ -208,6 +234,7 @@ struct String* inverse_phi_boolean(int index){
             end->next = newString(" \\leq ");
             end = end->next;
             end->next = inverse_phi_arithmetic(values[1]);
+            free(values);
             return str;
     };
 }
@@ -216,7 +243,7 @@ struct String* inverse_phi_statement(int index, int indentation){
     struct String* str;
     str = createIndentation(3 * indentation);
     if (index == 0) {
-        str->next = newString("skip\n");
+        str->next = newString("skip");
         return str;
     }
     
@@ -229,13 +256,14 @@ struct String* inverse_phi_statement(int index, int indentation){
             index /= 4;
             index--;
             values = inverse_phi(index);
-            end->next = newString("while");
+            end->next = newString("while ");
             end = end->next;
             end->next = inverse_phi_boolean(values[0]);
             end =  endOfString(end);
-            end->next = newString("do \n");
+            end->next = newString(" do \n");
             end = end->next;
             end->next = inverse_phi_statement(values[1], indentation + 1);
+            free(values);
             return str;
 
         case 1:
@@ -250,19 +278,20 @@ struct String* inverse_phi_statement(int index, int indentation){
             end->next = inverse_phi_arithmetic(values[1]);
             end = endOfString(end); 
             end->next = newString("\n");
+            free(values);
             return str;
 
         case 2:
             index -= 2;
             index /= 4;
-            index--;
             values = inverse_phi(index);
 
             end->next = inverse_phi_statement(values[0], 0) ;
             end =  endOfString(end);
-            end->next =  newString(";"); 
+            end->next =  newString(";\n"); 
             end = end->next;
             end->next = inverse_phi_statement(values[1], 0);
+            free(values);
             return str;
 
         case 3:
@@ -281,17 +310,20 @@ struct String* inverse_phi_statement(int index, int indentation){
             end = endOfString(end);
             end->next = newString(" else\n");
             end = end->next;
-            end->next = inverse_phi_statement(statements[0], indentation + 1);
+            end->next = inverse_phi_statement(statements[1], indentation + 1);
 
+            free(values);
+            free(statements);
             return str;
     }
 }
 
 void printString(struct String* string){
-    while(string->next != NULL){
+    while(string != NULL){
         printf("%s", string->string);
         string = string->next;
     }
+    printf("\n");
 }
 
 int main(int argc, char *argv[])
