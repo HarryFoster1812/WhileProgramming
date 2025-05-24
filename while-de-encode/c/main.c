@@ -169,7 +169,7 @@ struct String* inverse_phi_arithmetic(int index){
             }
             str = inverse_phi_arithmetic(values[0]);
             end =  endOfString(str);
-            end->next = newString(" \\times ");
+            end->next = newString(" * ");
             end = end->next;
             end->next = inverse_phi_arithmetic(values[1]);
             free(values);
@@ -180,9 +180,9 @@ struct String* inverse_phi_arithmetic(int index){
 struct String* inverse_phi_boolean(int index){
         
     if (index == 0) {
-        return newString("\\false");
+        return newString("false");
     } else if (index == 1) {
-        return newString("\\true");
+        return newString("true");
     }
 
     int* values;
@@ -193,9 +193,8 @@ struct String* inverse_phi_boolean(int index){
         case 0:
             index -= 4;
             index /= 4;
-            str = newString(" \\lnot ");
+            str = newString(" ! ");
             str->next = inverse_phi_boolean(index);
-            free(values);
             return str;
         
         case 1:
@@ -205,7 +204,7 @@ struct String* inverse_phi_boolean(int index){
 
             str = inverse_phi_boolean(values[0]);
             end =  endOfString(str);
-            end->next = newString(" \\land ");
+            end->next = newString(" && ");
             end = end->next;
             end->next = inverse_phi_boolean(values[1]);
             free(values);
@@ -231,7 +230,7 @@ struct String* inverse_phi_boolean(int index){
 
             str = inverse_phi_arithmetic(values[0]);
             end =  endOfString(str);
-            end->next = newString(" \\leq ");
+            end->next = newString(" <= ");
             end = end->next;
             end->next = inverse_phi_arithmetic(values[1]);
             free(values);
@@ -329,6 +328,7 @@ void printString(struct String* string){
 int main(int argc, char *argv[])
 {
     int input;
+
     do{
         printf("Enter a number:");
         scanf("%d", &input);
