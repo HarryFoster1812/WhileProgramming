@@ -1,0 +1,8 @@
+while (i<=n){
+    j := 1 ;
+    while (j<=i){ 
+        x := x + j; 
+        j := j + 1;
+    }
+    i := i+1
+}
