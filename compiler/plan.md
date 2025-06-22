@@ -18,7 +18,7 @@ Other useful instructions may be
 Program constraints: only input and output numbers and cells
 All output will be interpreted as ASCII (any number will be printed to standard output as is)
 
-Target architecture will be x86_64 since that is my laptop.
+Target architecture will be x86_64 since that is my laptop. It will also target the NASM assembler for cross compatibility.
 The compiler will strictly produce assembly instructions.
 
 # Phases

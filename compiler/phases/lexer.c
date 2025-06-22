@@ -1,5 +1,6 @@
 #pragma once
 #include "./lexer.h"
+#include "util.c"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -131,5 +132,7 @@ TOKEN_T **lex_file(FILE *fptr) {
     line_no++;
   }
   token_arr[token_count++] = make_token(TOKEN_EOF, line_no, 0, "EOF");
+  // realloc to free any unused Memory
+  token_arr = realloc(token_arr, sizeof(TOKEN_T *) * token_count);
   return token_arr;
 }

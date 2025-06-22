@@ -40,3 +40,6 @@ TOKEN_T *make_token(enum TOKEN_TYPE type, int line, int col, char *lexeme);
 TOKEN_T **lex_file(FILE *fptr);
 
 #include "./lexer.c"
+
+// TODO:
+// Add comment support (use c style syntax //)
