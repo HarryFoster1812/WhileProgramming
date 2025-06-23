@@ -104,6 +104,7 @@ make_logic_bool(BoolExprType type, BoolExpr *left,
                                   // so that it can be extended
 void free_bool_expr(BoolExpr *node);
 
+Stmt *make_skip_stmt();
 Stmt *make_assign_stmt(const char *var_name, Expr *expr);
 Stmt *make_if_stmt(BoolExpr *cond, StmtList *then_block, StmtList *else_block);
 Stmt *make_while_stmt(BoolExpr *cond, StmtList *block);

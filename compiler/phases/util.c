@@ -22,11 +22,9 @@ void expected_token(int line, int column, enum TOKEN_TYPE recived,
     parsing_error = 1;
 }
 
-void unexpected_token(int line, int column, const char token) {
-    fprintf(
-        stderr,
-        "ERROR: on line %d, column %d. Unexpected token whilst lexing: %c.\n",
-        line, column, token);
+void unexpected_token(int line, int column, const char* token) {
+    fprintf(stderr, "ERROR: on line %d, column %d. Unexpected token %s.\n",
+            line, column, token);
     parsing_error = 1;
 }
 

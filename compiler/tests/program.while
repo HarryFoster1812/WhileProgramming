@@ -1,4 +1,4 @@
-while (i<=n){
+while (i<=n) do {
     j := 1 ;
     while (j<=i){ 
         x := x + j; 

@@ -120,6 +120,16 @@ void free_bool_expr(BoolExpr* node) {
     free(node);
 }
 
+Stmt* make_skip_stmt() {
+
+    Stmt* astNode = calloc(1, sizeof(Stmt));
+    if (astNode == NULL)
+        panic("Failed to allocate memory");
+
+    astNode->type = STMT_SKIP;
+    return astNode;
+}
+
 Stmt* make_assign_stmt(const char* var_name, Expr* expr) {
     Stmt* astNode = calloc(1, sizeof(Stmt));
     if (astNode == NULL)
