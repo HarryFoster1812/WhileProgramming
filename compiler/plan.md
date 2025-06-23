@@ -63,18 +63,18 @@ main.c
  └── lexer.c
        └── parser.c
              └── ast.c
-                   └── codegen.c → outputs assembly
+                   └── codegen.c → outputs assembly <filename.s>
 
 Is there a need for an optimiser?
 
 # Syntax of the language
 
-The syntax of the language follows the Grammar:
+The syntax of the language follows the grammar:
 $$
 \begin{array}{left}
-s ::= x := a | skip | S_{1};S_{2}|\text{if b then } S_{1} \text{ else } S_{2} | \text{while } b \text{ do } s | print x | input x \\
-b ::=true | false | a_{1}=a_{2}|a_{1}\leq a_{2} | \lnot b|b_{1} \land ~  b_{2} \\
-a ::= x|n|a_{1}+a_{2}|a_{1}-a_{2}| a_{1} * a_{2}
+s ::= x := a ~|~ \text{skip} ~|~ s;s ~|~ \text{if (}b \text{) then } s \text{ else } \{s\} ~|~ \text{while } (b) \text{ do } \{s\} ~|~ \text{print } x ~|~ \text{input } x \\
+b ::= \text{true} ~|~ \text{false} ~|~ a==a ~|~ a\leq a ~|~ \text{!} b ~|~ b \text{\&\&} b \\
+a ::= x~|~n~|~a+a~|~a-a
 \end{array}
 $$
 

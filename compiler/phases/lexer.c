@@ -30,7 +30,8 @@ enum TOKEN_TYPE identify_token(const char *lexeme) {
       {"==", TOKEN_EQUAL},    {";", TOKEN_SEMICOLON},   {"+", TOKEN_PLUS},
       {"-", TOKEN_MINUS},     {"{", TOKEN_L_CURLY},     {"}", TOKEN_R_CURLY},
       {"(", TOKEN_L_PAREN},   {")", TOKEN_L_PAREN},     {"true", TOKEN_TRUE},
-      {"false", TOKEN_FALSE}, {"skip", TOKEN_SKIP}};
+      {"false", TOKEN_FALSE}, {"skip", TOKEN_SKIP},     {"&&", TOKEN_AND},
+      {"!", TOKEN_NOT}};
 
   const int keyword_count = sizeof(keywords) / sizeof(TokenMap);
   for (int i = 0; i < keyword_count; ++i) {
@@ -46,13 +47,13 @@ enum TOKEN_TYPE identify_token(const char *lexeme) {
   return TOKEN_UNKNOWN;
 }
 
-int is_symbol(char c) { return strchr("+-;{}():=<>", c) != NULL; }
+int is_symbol(char c) { return strchr("+-;{}():=<>&!", c) != NULL; }
 
 int is_multi_character_symbol(char *buffer, int *col_no) {
   // this contains the checks for multi characters such as :=, <=, >=
   if ((buffer[*col_no] == ':' && buffer[*col_no + 1] == '=') ||
       (buffer[*col_no] == '<' && buffer[*col_no + 1] == '=') ||
-      (buffer[*col_no] == '>' && buffer[*col_no + 1] == '=') ||
+      (buffer[*col_no] == '&' && buffer[*col_no + 1] == '&') ||
       (buffer[*col_no] == '=' && buffer[*col_no + 1] == '=')) {
     *col_no += 2;
     return 1; // true
@@ -121,8 +122,7 @@ TOKEN_T **lex_file(FILE *fptr) {
         TOKEN_T **new_arr =
             realloc(token_arr, sizeof(TOKEN_T *) * token_arr_size);
         if (!new_arr) {
-          fprintf(stderr, "Memory allocation failed.\n");
-          exit(1);
+          panic("Memory Realloc failed");
         }
         token_arr = new_arr;
       }
