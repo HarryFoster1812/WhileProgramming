@@ -113,6 +113,7 @@ void free_stmt(Stmt *stmt);
 
 StmtList *make_stmt_list();
 StmtList *make_stmt_list_node(Stmt *stmt);
+StmtList *append_stmt(StmtList *tail, Stmt *stmt);
 void free_stmt_list(StmtList *root);
 
 #include "ast.c"
