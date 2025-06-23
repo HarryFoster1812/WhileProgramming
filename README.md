@@ -17,6 +17,7 @@ For those who can read a grammar this is the grammar which the compiler uses:
 s ::= x := a ~|~ \text{skip} ~|~ s;s ~|~ \text{if (}b \text{) then } s \text{ else } \{s\} ~|~ \text{while } (b) \text{ do } \{s\} ~|~ \text{print } x ~|~ \text{input } x \\
 b ::= \text{true} ~|~ \text{false} ~|~ a==a ~|~ a\leq a ~|~ \text{!} b ~|~ b \text{\&\&} b \\
 a ::= x~|~n~|~a+a~|~a-a
+\end{array}
 ```
 
 Where:
