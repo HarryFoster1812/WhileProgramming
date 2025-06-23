@@ -1,25 +1,30 @@
-A toy compiler for the WHILE programming language, implemented as an educational project to learn and implement the basic stages of compilation including parsing, semantic analysis, and code generation. As well as a compiler i also implemented a de-encoder which takes a natural number as input as de-encodes it into a valid while program which the rules were defined with my University's course unit "The Fundamentals of Computation", unit code: COMP11212
+# WHILE Compiler
 
-# What is WHILE?
+A toy compiler for the WHILE programming language, implemented as an educational project to explore the basic stages of compilation — including lexical analysis, parsing, semantic analysis, and code generation.
 
-WHILE is a simple, Turing-complete imperative programming language often used in formal methods and theoretical computer science. The language was introduced in "Principles of Program Analysis" by Nielson, Nielson, and Hankin.  
+This project also includes a *de-encoder*, which takes a natural number and decodes it into a syntactically valid WHILE program. This concept was introduced in my university's course "The Fundamentals of Computation" (COMP11212).
 
-The language is intentionally minimal, making it ideal for studying the core principles of compilers.
+---
 
-# Syntax and Language Design
+## What is WHILE?
 
-Personally I was introduced to the WHILE language via my University course where they had slightly different syntax to what was defined in the textbook. I have used my University's grammar as my inspiration for the grammar of this version of the while language.
+WHILE is a simple, Turing-complete imperative programming language, frequently used in formal methods and theoretical computer science. It was introduced in *Principles of Program Analysis* by Nielson, Nielson, and Hankin.
 
-For those who can read a grammar this is the grammar which the compiler uses:
+Its intentionally minimal design makes it ideal for studying the fundamental principles of compilers.
+
+---
+
+## Syntax and Grammar
+
+The syntax used here is based on a variation introduced in my university course, which differs slightly from the version in the textbook. Below is the grammar supported by this compiler:
 
 ```math
-\begin{array}{left}
-s ::= x := a ~|~ \text{skip} ~|~ s;s ~|~ \text{if (}b \text{) then } \{s\} \text{ else } \{s\} ~|~ \text{while } (b) \text{ do } \{s\} ~|~ \text{print } x ~|~ \text{input } x \\
-b ::= \text{true} ~|~ \text{false} ~|~ a==a ~|~ a\leq a ~|~ \text{!} b ~|~ b \text{\&\&} b \\
-a ::= x~|~n~|~a+a~|~a-a
+\begin{array}{l}
+s ::= x := a ~|~ \text{skip} ~|~ s;s ~|~ \text{if (}b \text{) then } \{s\} \text{ else } \{s\} ~|~ \text{while (}b\text{) do } \{s\} ~|~ \text{print } x ~|~ \text{input } x \\
+b ::= \text{true} ~|~ \text{false} ~|~ a == a ~|~ a \leq a ~|~ \text{!}b ~|~ b \&\& b \\
+a ::= x ~|~ n ~|~ a + a ~|~ a - a
 \end{array}
 ```
-
 Where:
 
 - S is a statement
@@ -28,21 +33,47 @@ Where:
 - x is a variable
 - n is a numeric value
 
-## Language Changes
+## Language Extensions
 
-Since in the first semester we were introduced to python as our first language the original grammar featured indentation as the basis for blocks. I have replaced this in favour of c-style syntax featuring braces and parentheses.
+A few modifications were made to adapt the language for practical use:
 
-In addition, i have also introduced the instructions print <var> and input <var> since the original language lacked these.
+- Block syntax: The original Python-style indentation was replaced with C-style braces {} for clarity and parser simplicity.
+- New instructions:
+  -  print <var> — outputs the value of a variable
+  -  input <var> — reads a value into a variable
+- Data domain: Extended from natural numbers to all integers.
 
-I also made the decision to extend the domain of the language to be the set of integers instead of the intended natural numbers.
+## Compiler Architecture
+-  Target: x86 NASM assembly (Linux Syscalls)
+-  Lexer: Character-based
+-  Parser: Top-down predictive parser for statements
+-  Semantic Analysis: Basic type checking and symbol table
+-  Code Generator: Emits NASM assembly
 
-# Compiler Details
+## Decoder Tool
 
-## Target
+Included is a WHILE program de-encoder which takes a natural number and maps it to a valid WHILE program based on the encoding rules studied in COMP11212.
+The decoder implements an encoding inspired by Gödel numbering, where syntactic constructs of a program are uniquely represented as natural numbers — illustrating how computation can be captured arithmetically.
 
-The compiler targets x86 NASM assembly.
 
-## Implementation Details
+## Running 
+To run the compiler or decoder:
+### Compiler
+```bash
+# To compile
+./compiler example.while -o out.s
+# To assemble
+nasm -f elf64 out.s -o out.o
+# Linking the object file
+ld out.o -o out
+# Finally run the executable
+./out
+```
 
-- Character based Lexer
-- A top-down predictive parser (for statements)
+```bash
+./decode 123456789
+```
+
+## Acknowledgments
+- University of Manchester — COMP11212: The Fundamentals of Computation
+- Principles of Program Analysis by Nielson, Nielson, and Hankin
