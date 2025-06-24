@@ -219,10 +219,12 @@ StmtList* make_stmt_list_node(Stmt* stmt) {
 }
 
 StmtList* append_stmt(StmtList* tail, Stmt* stmt) {
-    StmtList* new_tail = calloc(1, sizeof(StmtList));
-    tail->next = new_tail;
-    new_tail->stmt = stmt;
-    return new_tail;
+    if (tail->stmt) {
+        tail->next = make_stmt_list_node(stmt);
+        return tail->next;
+    }
+    tail->stmt = stmt;
+    return tail;
 }
 
 void free_stmt_list(StmtList* root) {
@@ -232,5 +234,133 @@ void free_stmt_list(StmtList* root) {
             free_stmt(root->stmt);
         free(root);
         root = current;
+    }
+}
+
+void indent(int level) {
+    for (int i = 0; i < level; i++) {
+        printf("  ");
+    }
+}
+
+void printExpr(Expr* expr, int indentLevel) {
+    if (expr == NULL)
+        return;
+
+    indent(indentLevel);
+    switch (expr->type) {
+    case EXPR_CONST:
+        printf("Const: %d\n", expr->constant);
+        break;
+    case EXPR_VAR:
+        printf("Var: %s\n", expr->var_name);
+        break;
+    case EXPR_ADD:
+        printf("Add:\n");
+        printExpr(expr->op.left, indentLevel + 1);
+        printExpr(expr->op.right, indentLevel + 1);
+        break;
+    case EXPR_SUB:
+        printf("Sub:\n");
+        printExpr(expr->op.left, indentLevel + 1);
+        printExpr(expr->op.right, indentLevel + 1);
+        break;
+    default:
+        indent(indentLevel);
+        printf("Unknown Expr Type: %d\n", expr->type);
+        break;
+    }
+}
+
+void printBool(BoolExpr* boolEx, int indentLevel) {
+    if (boolEx == NULL)
+        return;
+
+    indent(indentLevel);
+    switch (boolEx->type) {
+    case BOOL_TRUE:
+        printf("Bool: true\n");
+        break;
+    case BOOL_FALSE:
+        printf("Bool: false\n");
+        break;
+    case BOOL_NOT:
+        printf("Not:\n");
+        printBool(boolEx->child, indentLevel + 1);
+        break;
+    case BOOL_AND:
+        printf("And:\n");
+        printBool(boolEx->logic.left, indentLevel + 1);
+        printBool(boolEx->logic.right, indentLevel + 1);
+        break;
+    case BOOL_EQL:
+        printf("Equals:\n");
+        printExpr(boolEx->comp.left, indentLevel + 1);
+        printExpr(boolEx->comp.right, indentLevel + 1);
+        break;
+    case BOOL_LEQ:
+        printf("LessEq:\n");
+        printExpr(boolEx->comp.left, indentLevel + 1);
+        printExpr(boolEx->comp.right, indentLevel + 1);
+        break;
+    default:
+        indent(indentLevel);
+        printf("Unknown BoolExpr Type: %d\n", boolEx->type);
+        break;
+    }
+}
+
+void printStmt(Stmt* stmt, int indentLevel) {
+    if (stmt == NULL)
+        return;
+
+    indent(indentLevel);
+    switch (stmt->type) {
+    case STMT_SKIP:
+        printf("Skip;\n");
+        break;
+    case STMT_ASSIGN:
+        printf("Assign: %s :=\n", stmt->assign.var_name);
+        printExpr(stmt->assign.expr, indentLevel + 1);
+        break;
+    case STMT_IF:
+        printf("If:\n");
+        indent(indentLevel + 1);
+        printf("Condition:\n");
+        printBool(stmt->if_stmt.condition, indentLevel + 2);
+        indent(indentLevel + 1);
+        printf("Then:\n");
+        printAST(stmt->if_stmt.then_block, indentLevel + 2);
+        indent(indentLevel + 1);
+        printf("Else:\n");
+        printAST(stmt->if_stmt.else_block, indentLevel + 2);
+        break;
+    case STMT_WHILE:
+        printf("While:\n");
+        indent(indentLevel + 1);
+        printf("Condition:\n");
+        printBool(stmt->while_stmt.condition, indentLevel + 2);
+        indent(indentLevel + 1);
+        printf("Body:\n");
+        printAST(stmt->while_stmt.body, indentLevel + 2);
+        break;
+    case STMT_PRINT:
+        printf("Print: %s\n", stmt->print_input.var_name);
+        break;
+    case STMT_INPUT:
+        printf("Input: %s\n", stmt->print_input.var_name);
+        break;
+    default:
+        indent(indentLevel);
+        printf("Unknown Stmt Type: %d\n", stmt->type);
+        break;
+    }
+}
+
+void printAST(StmtList* root, int indentLevel) {
+    StmtList* current = root;
+    while (current != NULL && current->stmt != NULL) {
+        printStmt(current->stmt, indentLevel);
+        current = current->next;
     }
 }

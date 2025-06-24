@@ -28,4 +28,12 @@ void unexpected_token(int line, int column, const char* token) {
     parsing_error = 1;
 }
 
+void expected_comp(int line, int column, const char* token) {
+    fprintf(stderr,
+            "ERROR: on line %d, column %d. Unexpected token %s. Expected a "
+            "comparison operator such as == or <=\n",
+            line, column, token);
+    parsing_error = 1;
+}
+
 void failed_parse() { fprintf(stderr, "Failed to parse statement"); }

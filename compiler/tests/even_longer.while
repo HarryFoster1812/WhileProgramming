@@ -1,0 +1,96 @@
+input x;
+input y;
+input z;
+input flag;
+input count;
+
+x := 0 - (0 - (0 - 3));
+y := ((x + 2) - (0 - 4)) + ((5 + 0) - ((2 - 0) + 1));
+z := x + y + ((0 - (1 + 2)) - (0 - 1));
+
+print x;
+print y;
+print z;
+
+if (!(x == y) && (z <= (x + y)) && !(x + y == z + z)) then {
+    flag := 1;
+    print flag;
+
+    if (x + (0 - y) + z <= 50) then {
+        x := x + 10;
+        y := y - 5;
+        z := (x + y + z) - (0 - (0 - 3));
+        print x;
+        print y;
+        print z;
+
+        while (x + y + z <= 100 && (!(flag == 0))) do {
+            a := x + y;
+            b := z - a;
+            print a;
+            print b;
+
+            if ((a <= b) && (!(b == 0))) then {
+                skip;
+            } else {
+                c := (0 - (0 - 1));
+                d := (a + b + c);
+                print d;
+
+                while (d <= 50 && c + d <= 100) do {
+                    d := d + 1;
+                    print d;
+                };
+            };
+        };
+
+    } else {
+        skip;
+        skip;
+    };
+} else {
+    flag := 0;
+
+    if ((flag == 0) && (!(x + y == z))) then {
+        skip;
+    } else {
+        x := x + 1;
+        y := y + 1;
+    };
+
+    while (x <= y && y + z <= 300) do {
+        print x;
+        print y;
+        print z;
+
+        if (x + y + z <= 250) then {
+            x := x + 5;
+            y := y - 3;
+            z := z + 2;
+
+            while (x + y <= 100) do {
+                print x;
+                x := x + 1;
+            };
+        } else {
+            skip;
+        };
+    };
+};
+
+print flag;
+
+while (!(flag == 1)) do {
+    flag := flag + 1;
+
+    if (flag + x + y + z <= 500) then {
+        skip;
+    } else {
+        print flag;
+    };
+};
+
+print x;
+print y;
+print z;
+print flag;

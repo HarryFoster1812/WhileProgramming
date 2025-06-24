@@ -24,8 +24,11 @@ int main(int argc, char* argv[]) {
 
     StmtList* ast = parse_tokens(tokenstream);
     if (parsing_error) {
-        printf("Encountered parsing errors. Stopping compilation");
+        printf("Encountered parsing errors. Stopping compilation\n");
         free_stmt_list(ast);
+    } else {
+        printf("Parsing sucessful... Parsing tree Representation:\n");
+        printAST(ast, 0);
     }
 
     return EXIT_SUCCESS;

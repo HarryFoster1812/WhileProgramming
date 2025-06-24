@@ -7,32 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-TOKEN_T* make_token(enum TOKEN_TYPE type, int line, int col, char* lexeme) {
-    TOKEN_T* ptr = (TOKEN_T*)malloc(sizeof(TOKEN_T));
-    if (ptr) {
-        ptr->type = type;
-        ptr->line_number = line;
-        ptr->col_number = col;
-        ptr->lexeme = lexeme; // string passed must be allocated in the heap
-    }
-    return ptr;
-}
-
-typedef struct {
-    const char* lexeme;
-    enum TOKEN_TYPE type;
-} TokenMap;
-
 enum TOKEN_TYPE identify_token(const char* lexeme) {
-    static const TokenMap keywords[] = {
-        {"while", TOKEN_WHILE}, {"do", TOKEN_DO},         {"if", TOKEN_IF},
-        {"then", TOKEN_THEN},   {"else", TOKEN_ELSE},     {"read", TOKEN_INPUT},
-        {"print", TOKEN_WRITE}, {":=", TOKEN_ASSIGNMENT}, {"<=", TOKEN_LEQ},
-        {"==", TOKEN_EQUAL},    {";", TOKEN_SEMICOLON},   {"+", TOKEN_PLUS},
-        {"-", TOKEN_MINUS},     {"{", TOKEN_L_CURLY},     {"}", TOKEN_R_CURLY},
-        {"(", TOKEN_L_PAREN},   {")", TOKEN_L_PAREN},     {"true", TOKEN_TRUE},
-        {"false", TOKEN_FALSE}, {"skip", TOKEN_SKIP},     {"&&", TOKEN_AND},
-        {"!", TOKEN_NOT}};
 
     const int keyword_count = sizeof(keywords) / sizeof(TokenMap);
     for (int i = 0; i < keyword_count; ++i) {
@@ -46,20 +21,6 @@ enum TOKEN_TYPE identify_token(const char* lexeme) {
     if (isalpha(lexeme[0]))
         return TOKEN_VARIABLE;
     return TOKEN_UNKNOWN;
-}
-
-int is_symbol(char c) { return strchr("+-;{}():=<>&!", c) != NULL; }
-
-int is_multi_character_symbol(char* buffer, int* col_no) {
-    // this contains the checks for multi characters such as :=, <=, >=
-    if ((buffer[*col_no] == ':' && buffer[*col_no + 1] == '=') ||
-        (buffer[*col_no] == '<' && buffer[*col_no + 1] == '=') ||
-        (buffer[*col_no] == '&' && buffer[*col_no + 1] == '&') ||
-        (buffer[*col_no] == '=' && buffer[*col_no + 1] == '=')) {
-        *col_no += 2;
-        return 1; // true
-    }
-    return 0; // false
 }
 
 TokenStream* lex_file(FILE* fptr) {

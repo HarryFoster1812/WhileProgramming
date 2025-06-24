@@ -1,5 +1,6 @@
 #pragma once
 #include "tokenstream.h"
+#include "token.h"
 #include "util.c"
 
 // return the current token
@@ -30,9 +31,11 @@ int match(TokenStream* stream, enum TOKEN_TYPE type) {
 // consumes and returns the token, outputs an error otherwise
 TOKEN_T* expect(TokenStream* stream, enum TOKEN_TYPE type) {
     TOKEN_T* current_token = peek_token(stream);
-    if (current_token->type != type)
+    if (current_token->type != type) {
         expected_token(current_token->line_number, current_token->col_number,
                        current_token->type, type);
+        return peek_token(stream); // do not advance the token
+    }
     return next_token(stream);
 }
 
@@ -50,12 +53,25 @@ int eof(TokenStream* stream) {
     return 0;
 }
 
-void free_tokenstream(TokenStream* stream) {
-    for (size_t i = 0; i < stream->index; ++i) {
-        TOKEN_T* current = stream->tokens[i];
-        free(current->lexeme); // free the lexmes strings
-        free(current);         // free the token struct
+void seek_next_terminal(TokenStream* stream) {
+    const int terminal_symbols[] = {TOKEN_SEMICOLON, TOKEN_L_CURLY,
+                                    TOKEN_R_CURLY};
+    int terminal_symbols_length = sizeof(terminal_symbols) / sizeof(int);
+
+    while (1) {
+        int match_symbol = 0;
+
+        for (int i = 0; i < terminal_symbols_length; ++i) {
+            if (match(stream, terminal_symbols[i])) {
+                match_symbol = 1;
+                break; // No need to check further, we found a terminal
+            }
+        }
+
+        if (match_symbol) {
+            break;
+        } else {
+            next_token(stream);
+        }
     }
-    free(stream->tokens); // free the pointer array
-    free(stream);         // free the stream struct
 }
