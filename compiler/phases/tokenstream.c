@@ -2,6 +2,7 @@
 #include "tokenstream.h"
 #include "token.h"
 #include "util.c"
+#include <stdlib.h>
 
 // return the current token
 TOKEN_T* peek_token(TokenStream* stream) {
@@ -74,4 +75,11 @@ void seek_next_terminal(TokenStream* stream) {
             next_token(stream);
         }
     }
+}
+
+void free_tokenstream(TokenStream* stream) {
+    for (int i = 0; i < stream->length; ++i) {
+        free_token(stream->tokens[i]);
+    }
+    free(stream);
 }

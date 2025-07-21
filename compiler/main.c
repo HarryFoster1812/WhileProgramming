@@ -31,5 +31,7 @@ int main(int argc, char* argv[]) {
         printAST(ast, 0);
     }
 
+    free_tokenstream(tokenstream);
+
     return EXIT_SUCCESS;
 }

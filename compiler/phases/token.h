@@ -74,16 +74,24 @@ TOKEN_T *make_token(enum TOKEN_TYPE type, int line, int col, char *lexeme) {
   return ptr;
 }
 
-int is_symbol(char c) { return strchr("+-;{}():=<>&!", c) != NULL; }
+int is_symbol(char c) { return strchr("+-;{}():=<>&!/", c) != NULL; }
 
 int is_multi_character_symbol(char *buffer, int *col_no) {
   // this contains the checks for multi characters such as :=, <=, >=
   if ((buffer[*col_no] == ':' && buffer[*col_no + 1] == '=') ||
       (buffer[*col_no] == '<' && buffer[*col_no + 1] == '=') ||
       (buffer[*col_no] == '&' && buffer[*col_no + 1] == '&') ||
+      (buffer[*col_no] == '/' && buffer[*col_no + 1] == '/') ||
       (buffer[*col_no] == '=' && buffer[*col_no + 1] == '=')) {
     *col_no += 2;
     return 1; // true
   }
   return 0; // false
+}
+
+void free_token(TOKEN_T *token) {
+  if (token->lexeme) {
+    free(token->lexeme);
+  }
+  free(token);
 }

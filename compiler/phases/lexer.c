@@ -59,6 +59,13 @@ TokenStream* lex_file(FILE* fptr) {
                 // Try to match multi-character operators first
                 if (is_multi_character_symbol(fbuffer, &col_no)) {
 
+                    if (fbuffer[col_no - 1] == '/' &&
+                        fbuffer[col_no - 2] == '/') {
+                        // it is a comment so we disregard the line and move
+                        // onto the next
+                        break; // skip rest of loop early
+                    }
+
                 } else {
                     col_no++; // Single-character symbol
                 }
@@ -95,7 +102,9 @@ TokenStream* lex_file(FILE* fptr) {
         }
         line_no++;
     }
-    token_arr[token_count++] = make_token(TOKEN_EOF, line_no, 0, "EOF");
+    char* eof_str = calloc(4, sizeof(char));
+    strcpy(eof_str, "EOF");
+    token_arr[token_count++] = make_token(TOKEN_EOF, line_no, 0, eof_str);
     // realloc to free any unused Memory
     token_arr = realloc(token_arr, sizeof(TOKEN_T*) * token_count);
 
