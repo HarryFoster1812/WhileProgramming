@@ -4,8 +4,4 @@
 #include <stdio.h>
 
 TokenStream *lex_file(FILE *fptr);
-
-#include "./lexer.c"
-
-// TODO:
-// Add comment support (use c style syntax //)
+enum TOKEN_TYPE identify_token(const char *lexeme);

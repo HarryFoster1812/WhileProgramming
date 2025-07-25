@@ -1,0 +1,7 @@
+bin/
+build/
+*.o
+*.out
+*.swp
+*.exe
+*.log

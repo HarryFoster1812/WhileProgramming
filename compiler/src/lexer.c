@@ -1,7 +1,5 @@
-#pragma once
-#include "./lexer.h"
-#include "tokenstream.h"
-#include "util.c"
+#include "lexer.h"
+#include "util.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +7,7 @@
 
 enum TOKEN_TYPE identify_token(const char* lexeme) {
 
-    const int keyword_count = sizeof(keywords) / sizeof(TokenMap);
+    const int keyword_count = keywords_count;
     for (int i = 0; i < keyword_count; ++i) {
         if (strcmp(lexeme, keywords[i].lexeme) == 0) {
             return keywords[i].type;

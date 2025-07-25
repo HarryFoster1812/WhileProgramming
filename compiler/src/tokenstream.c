@@ -1,7 +1,5 @@
-#pragma once
 #include "tokenstream.h"
-#include "token.h"
-#include "util.c"
+#include "util.h"
 #include <stdlib.h>
 
 // return the current token

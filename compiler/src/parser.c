@@ -1,10 +1,5 @@
-#pragma once
 #include "parser.h"
-#include "ast.h"
-#include "token.h"
-#include "tokenstream.c"
-#include "tokenstream.h"
-#include "util.c"
+#include "util.h"
 #include <stdlib.h>
 
 StmtList* parse_tokens(TokenStream* stream) {

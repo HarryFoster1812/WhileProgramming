@@ -118,5 +118,3 @@ StmtList *append_stmt(StmtList *tail, Stmt *stmt);
 void free_stmt_list(StmtList *root);
 
 void printAST(StmtList *root, int indentLevel);
-
-#include "ast.c"

@@ -5,7 +5,7 @@
 typedef struct {
   TOKEN_T **tokens; // pointer to array of TOKEN_T*
   size_t index;     // current index
-  size_t length;    // total number of tokens
+  int length;       // total number of tokens
 } TokenStream;
 
 // return the current token
@@ -28,4 +28,4 @@ int eof(TokenStream *stream);
 
 void free_tokenstream(TokenStream *stream);
 
-#include "tokenstream.c"
+void seek_next_terminal(TokenStream *stream);

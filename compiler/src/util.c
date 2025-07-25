@@ -1,6 +1,4 @@
-#pragma once
-#include "global.c"
-#include "token.h"
+#include "util.h"
 #include <stdio.h>
 #include <stdlib.h>
 

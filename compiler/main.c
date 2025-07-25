@@ -1,9 +1,8 @@
-#include "./phases/lexer.h"
-#include "./phases/util.c"
-#include "phases/ast.h"
-#include "phases/parser.c"
-#include "phases/parser.h"
-#include "phases/tokenstream.h"
+#include "ast.h"
+#include "lexer.h"
+#include "parser.h"
+#include "tokenstream.h"
+#include "util.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>

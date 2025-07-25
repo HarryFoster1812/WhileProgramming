@@ -1,9 +1,6 @@
 #pragma once
 #include "ast.h"
-#include "global.c"
-#include "lexer.h"
 #include "tokenstream.h"
-#include "util.c"
 
 StmtList *parse_tokens(TokenStream *stream);
 
@@ -17,5 +14,3 @@ BoolExpr *
 parse_bool_primary(TokenStream *stream); // handles true, false, parentheses
 
 Expr *parse_expr(TokenStream *stream);
-
-#include "parser.c"
