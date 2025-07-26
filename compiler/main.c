@@ -1,6 +1,8 @@
 #include "ast.h"
+#include "ast_analysis.h"
 #include "lexer.h"
 #include "parser.h"
+#include "symbol_table.h"
 #include "tokenstream.h"
 #include "util.h"
 #include <stdbool.h>
@@ -22,15 +24,19 @@ int main(int argc, char* argv[]) {
     TokenStream* tokenstream = lex_file(file_pointer);
 
     StmtList* ast = parse_tokens(tokenstream);
+
     if (parsing_error) {
         printf("Encountered parsing errors. Stopping compilation\n");
         free_stmt_list(ast);
-    } else {
-        printf("Parsing sucessful... Parsing tree Representation:\n");
-        printAST(ast, 0);
     }
 
     free_tokenstream(tokenstream);
+
+    printf("Parsing sucessful... Parsing tree Representation:\n");
+    AnalysisContext* context = analyse_ast(ast);
+    print_symbol_table(context->symtab);
+    printf("Uses input %d\n", context->uses_input);
+    printf("Uses print %d\n", context->uses_print);
 
     return EXIT_SUCCESS;
 }

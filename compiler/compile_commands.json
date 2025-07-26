@@ -1,0 +1,17 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/symbol_table.o",
+      "src/symbol_table.c"
+    ],
+    "directory": "/home/harryfoster/personalgit/while-programming/compiler",
+    "file": "/home/harryfoster/personalgit/while-programming/compiler/src/symbol_table.c",
+    "output": "/home/harryfoster/personalgit/while-programming/compiler/build/symbol_table.o"
+  }
+]
