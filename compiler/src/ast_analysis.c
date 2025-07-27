@@ -1,5 +1,6 @@
 #include "ast_analysis.h"
 #include "ast.h"
+#include "ast_walk.h"
 #include "symbol_table.h"
 #include "util.h"
 #include <stdlib.h>
@@ -11,7 +12,7 @@ AnalysisContext* analyse_ast(StmtList* list) {
         panic("Failed to create analysis context");
     }
     ctx->symtab = create_symbol_table();
-    walk_stmt_list(list, analyse_callback, ctx);
+    walk_stmt_list(list, analyse_callback, ctx, TRAVERSAL_PREORDER);
     return ctx;
 }
 
@@ -33,9 +34,15 @@ void analyse_callback(void* node, const char* kind, void* ctx) {
         switch (stmt->type) {
         case STMT_INPUT:
             context->uses_input = 1;
+            if (stmt->print_input.var_name) {
+                add_symbol(context->symtab, stmt->print_input.var_name);
+            }
             break;
         case STMT_PRINT:
             context->uses_print = 1;
+            if (stmt->print_input.var_name) {
+                add_symbol(context->symtab, stmt->print_input.var_name);
+            }
             break;
         default:
             break;

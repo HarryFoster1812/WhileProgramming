@@ -1,6 +1,10 @@
+section .bss
+input_buf: resb 32
+
 section .text
 global input
 
+; void input(int* output, char* input_buf);
 input:
     push rdi
     mov     eax, 0              ; syscall number for sys_read
@@ -49,5 +53,3 @@ input:
     mov     [rdi], r9
     ret
 
-section .bss
-input_buf: resb 32

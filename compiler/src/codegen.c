@@ -1,9 +1,14 @@
 #include "codegen.h"
 #include "asm_templates.h"
+#include "ast.h"
 #include "ast_walk.h"
+#include "codegen_context.h"
 #include "symbol_table.h"
+#include "util.h"
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // there is no scope/functions in while but if i need to add them later this us
 // very useful
@@ -29,12 +34,21 @@ RegisterInfo registers[] = {
 const int num_registers = sizeof(registers) / sizeof(registers[0]);
 
 void write_variable(FILE* out_file, const char* var_name) {
-    fprintf(out_file, data_var_template, var_name, "dd", "0");
+    fprintf(out_file, data_var_template, var_name, "dq", "0");
+    fprintf(out_file, data_var_name_template, var_name, var_name);
+}
+
+void write_input_call(FILE* out_file, const char* var_name) {
+    fprintf(out_file, call_input_var, var_name);
+}
+
+void write_print_call(FILE* out_file, const char* var_name) {
+    fprintf(out_file, call_print_var, var_name, var_name);
 }
 
 int gen_code(AnalysisContext* ctx, StmtList* ast, FILE* out_file) {
     // loop through all of the varibales and declare them at the top of the file
-    fprintf(out_file, ".data\n");
+    fprintf(out_file, "section .data\n");
     SymbolTable* table = ctx->symtab;
     for (int i = 0; i < SYMBOL_TABLE_SIZE; ++i) {
         SymbolNode* bucket_node = table->buckets[i];
@@ -53,7 +67,8 @@ int gen_code(AnalysisContext* ctx, StmtList* ast, FILE* out_file) {
     }
 
     if (ctx->uses_print) {
-        if (!copy_snippet("./asm/print.s", out_file))
+        if (!copy_snippet("./asm/print.s", out_file) ||
+            !copy_snippet("./asm/itoa.s", out_file))
             return 0;
     }
 
@@ -61,15 +76,69 @@ int gen_code(AnalysisContext* ctx, StmtList* ast, FILE* out_file) {
 
     fprintf(out_file, start_code);
 
-    walk_stmt_list(ast, codegen_callback,
-                   NULL); // Later make ctx a state of the simulated state
+    CodegenContext* context = malloc(sizeof(CodegenContext));
+    if (!context) {
+        panic("Failed to allocate memory for CodegenContext");
+    }
+
+    context->outfile = out_file;
+
+    walk_stmt_list(
+        ast, codegen_callback, context,
+        TRAVERSAL_INORDER); // Later make ctx a state of the simulated state
 
     fprintf(out_file, exit_code);
 
     return 1;
 }
 
-void codegen_callback(void* node, const char* node_type, void* ctx) {}
+void codegen_callback(void* node, const char* node_type, void* ctx) {
+    if (!node) {
+        return;
+    }
+
+    CodegenContext* context = (CodegenContext*)ctx;
+
+    if (strcmp("expr", node_type) == 0) {
+        Expr* expr = (Expr*)node;
+        if (expr->type == EXPR_VAR) {
+        }
+    } else if (strcmp("stmt", node_type) == 0) {
+
+        Stmt* stmt = (Stmt*)node;
+        switch (stmt->type) {
+        case STMT_INPUT:
+            write_input_call(context->outfile, stmt->print_input.var_name);
+            break;
+        case STMT_PRINT:
+            write_print_call(context->outfile, stmt->print_input.var_name);
+            break;
+        default:
+            break;
+        }
+    } else if (strcmp("bool", node_type) == 0) {
+
+        BoolExpr* bexpr = (BoolExpr*)node;
+        switch (bexpr->type) {
+        case BOOL_AND:
+            break;
+        case BOOL_EQL:
+            break;
+        case BOOL_FALSE:
+            break;
+        case BOOL_TRUE:
+            break;
+        case BOOL_LEQ:
+            break;
+        case BOOL_NOT:
+            break;
+        default:
+            break;
+        }
+    }
+
+    return;
+}
 
 void copy_file_contents(FILE* input_file, FILE* out_file) {
     char buffer[1024];

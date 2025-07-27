@@ -1,8 +1,11 @@
+section .data
+nl:     db 10, 0
+
 section .text
 global print
-global my_strlen
+global strlen
 
-my_strlen:
+strlen:
     xor rax, rax        ; length counter
 
 .loop:
@@ -17,7 +20,7 @@ my_strlen:
 ; void print(char *rdi)
 print:
     push rdi             ; save rdi (argument)
-    call my_strlen       ; rax = length of string
+    call strlen       ; rax = length of string
     pop rdi              ; restore rdi (string ptr)
 
     mov rdx, rax         ; rdx = length
