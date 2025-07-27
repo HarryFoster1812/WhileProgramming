@@ -116,10 +116,7 @@ Stmt* parse_stmt(TokenStream* stream) {
 }
 
 BoolExpr* parse_comp_bool(TokenStream* stream) {
-    int before_parse_expr = stream->index;
-    int parse_status_before = parsing_error;
     Expr* lexpr = parse_expr(stream);
-    TOKEN_T* current = peek_token(stream);
 
     if (match(stream, TOKEN_LEQ)) {
         Expr* rexpr = parse_expr(stream);

@@ -76,20 +76,35 @@ int gen_code(AnalysisContext* ctx, StmtList* ast, FILE* out_file) {
 
     fprintf(out_file, start_code);
 
-    CodegenContext* context = malloc(sizeof(CodegenContext));
+    CodegenContext* context = calloc(1, sizeof(CodegenContext));
     if (!context) {
         panic("Failed to allocate memory for CodegenContext");
     }
 
     context->outfile = out_file;
 
-    walk_stmt_list(
-        ast, codegen_callback, context,
-        TRAVERSAL_INORDER); // Later make ctx a state of the simulated state
+    walk_stmt_list(ast, codegen_callback, context, TRAVERSAL_POSTORDER,
+                   0); // Later make ctx a state of the simulated state
 
     fprintf(out_file, exit_code);
 
     return 1;
+}
+
+void write_binary_op(CodegenContext* context, void* left_child,
+                     void* right_child, const char* node_type,
+                     const char* operation) {
+    // Recursively evaluate left
+    codegen_callback(left_child, node_type, context);
+    fprintf(context->outfile, "\tpush rax\n");
+
+    // Recursively evaluate right
+    codegen_callback(right_child, node_type, context);
+    fprintf(context->outfile, "\tmov rbx, rax\n");
+
+    // Pop left operand back into rax
+    fprintf(context->outfile, "\tpop rax\n");
+    fprintf(context->outfile, "\t%s rax, rbx\n", operation);
 }
 
 void codegen_callback(void* node, const char* node_type, void* ctx) {
@@ -101,12 +116,82 @@ void codegen_callback(void* node, const char* node_type, void* ctx) {
 
     if (strcmp("expr", node_type) == 0) {
         Expr* expr = (Expr*)node;
-        if (expr->type == EXPR_VAR) {
+        switch (expr->type) {
+        case EXPR_VAR:
+            fprintf(context->outfile, "\tmov rax, [%s]\n", expr->var_name);
+            break;
+        case EXPR_CONST:
+            fprintf(context->outfile, "\tmov rax, %d\n", expr->constant);
+            break;
+        case EXPR_ADD: {
+            Expr* left = expr->op.left;
+            Expr* right = expr->op.right;
+
+            write_binary_op(context, left, right, node_type, "add");
+            break;
+        }
+        case EXPR_SUB: {
+            Expr* left = expr->op.left;
+            Expr* right = expr->op.right;
+
+            write_binary_op(context, left, right, node_type, "sub");
+            break;
+        }
         }
     } else if (strcmp("stmt", node_type) == 0) {
 
         Stmt* stmt = (Stmt*)node;
         switch (stmt->type) {
+
+        case STMT_IF: {
+            int id = context->label++;
+
+            // BoolExpr result will be in rax (0 or 1)
+
+            codegen_callback(stmt->if_stmt.condition, "bool", context);
+
+            fprintf(context->outfile, "\tcmp rax, 0\n");
+
+            fprintf(context->outfile, "\tje else_%d\n", id);
+            walk_stmt_list(stmt->if_stmt.then_block, codegen_callback, context,
+                           TRAVERSAL_POSTORDER, 0);
+            fprintf(context->outfile, "\tj endif_%d\n", id);
+
+            fprintf(context->outfile, "else_%d:\n", id);
+            walk_stmt_list(stmt->if_stmt.else_block, codegen_callback, context,
+                           TRAVERSAL_POSTORDER, 0);
+
+            fprintf(context->outfile, "endif_%d:\n", id);
+            break;
+        }
+        case STMT_ASSIGN: {
+
+            // evaluate lhs
+            codegen_callback(stmt->assign.expr, "expr", context);
+            // store in rhs
+            fprintf(context->outfile, "\tmov [%s], rax\n",
+                    stmt->assign.var_name);
+            break;
+        }
+        case STMT_WHILE: {
+            int id = context->label++;
+
+            // BoolExpr result will be in rax (0 or 1)
+
+            fprintf(context->outfile, "startwhile_%d:\n", id);
+            codegen_callback(stmt->while_stmt.condition, "bool", context);
+
+            fprintf(context->outfile, "\tcmp rax, 0\n");
+            fprintf(context->outfile, "\tje endwhile_%d\n", id);
+
+            walk_stmt_list(stmt->while_stmt.body, codegen_callback, context,
+                           TRAVERSAL_POSTORDER, 0);
+            fprintf(context->outfile, "\tj startwhile_%d\n", id);
+
+            fprintf(context->outfile, "endwhile_%d:\n", id);
+            break;
+        }
+
         case STMT_INPUT:
             write_input_call(context->outfile, stmt->print_input.var_name);
             break;
@@ -117,21 +202,59 @@ void codegen_callback(void* node, const char* node_type, void* ctx) {
             break;
         }
     } else if (strcmp("bool", node_type) == 0) {
-
         BoolExpr* bexpr = (BoolExpr*)node;
+
         switch (bexpr->type) {
-        case BOOL_AND:
+
+        case BOOL_EQL: {
+            write_binary_op(context, bexpr->comp.left, bexpr->comp.right,
+                            node_type, "comp");
+            fprintf(context->outfile, "\tmov rax, 0\n");
+            fprintf(context->outfile, "\tsete al\n");
             break;
-        case BOOL_EQL:
+        }
+
+        case BOOL_LEQ: {
+            write_binary_op(context, bexpr->comp.left, bexpr->comp.right,
+                            node_type, "comp");
+            fprintf(context->outfile, "\tmov rax, 0\n");
+            fprintf(context->outfile, "\tsetle al\n");
             break;
-        case BOOL_FALSE:
+        }
+
+        case BOOL_NOT: {
+            // !a — assume child result is in rax
+            codegen_callback(bexpr->child, node_type, context);
+            fprintf(context->outfile, "\tcmp rax, 0\n");
+            fprintf(context->outfile, "\tmov rax, 0\n");
+            fprintf(context->outfile, "\tsete al\n"); // al = 1 if rax == 0
             break;
+        }
+
         case BOOL_TRUE:
+            fprintf(context->outfile, "\tmov rax, 1\n");
             break;
-        case BOOL_LEQ:
+
+        case BOOL_FALSE:
+            fprintf(context->outfile, "\tmov rax, 0\n");
             break;
-        case BOOL_NOT:
+
+        case BOOL_AND: {
+
+            codegen_callback(bexpr->logic.left, node_type, context);
+            fprintf(context->outfile, "push rax\n");
+
+            codegen_callback(bexpr->logic.left, node_type, context);
+            fprintf(context->outfile, "cmp rbx, 0\n");
+            fprintf(context->outfile, "setne bl\n"); // bl = (left != 0)
+            fprintf(context->outfile, "cmp rax, 0\n");
+            fprintf(context->outfile, "setne al\n");   // al = (right != 0)
+            fprintf(context->outfile, "and al, bl\n"); // al = al & bl
+            fprintf(context->outfile,
+                    "movzx rax, al\n"); // zero-extend al to rax
             break;
+        }
+
         default:
             break;
         }

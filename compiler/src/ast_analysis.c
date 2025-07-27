@@ -7,12 +7,12 @@
 #include <string.h>
 
 AnalysisContext* analyse_ast(StmtList* list) {
-    AnalysisContext* ctx = malloc(sizeof(AnalysisContext));
+    AnalysisContext* ctx = calloc(1, sizeof(AnalysisContext));
     if (!ctx) {
         panic("Failed to create analysis context");
     }
     ctx->symtab = create_symbol_table();
-    walk_stmt_list(list, analyse_callback, ctx, TRAVERSAL_PREORDER);
+    walk_stmt_list(list, analyse_callback, ctx, TRAVERSAL_PREORDER, 1);
     return ctx;
 }
 

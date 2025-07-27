@@ -36,10 +36,7 @@ int main(int argc, char* argv[]) {
     free_tokenstream(tokenstream);
 
     // printf("Parsing sucessful... Parsing tree Representation:\n");
-    printAST(ast, 0);
     AnalysisContext* context = analyse_ast(ast);
-
-    print_symbol_table(context->symtab);
 
     FILE* out_file = fopen(argv[3], "w");
 

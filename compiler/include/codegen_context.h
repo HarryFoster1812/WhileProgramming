@@ -3,4 +3,5 @@
 
 typedef struct {
   FILE *outfile;
+  int label;
 } CodegenContext;

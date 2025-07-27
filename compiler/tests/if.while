@@ -1,5 +1,6 @@
 if (x + 1 <= 8 && y == 2 && 1 <= 2) then {
-    skip;
+    z := 1;
 } else {
     z := 3;
-}
+};
+print z;
