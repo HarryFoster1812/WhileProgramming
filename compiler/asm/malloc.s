@@ -1,3 +1,8 @@
+section .text
+global allocate
+
+; void print(char *rdi)
+allocate:
     ; mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0)
     mov rax, 9          ; syscall: mmap
     xor rdi, rdi        ; NULL addr = let kernel choose
@@ -7,5 +12,5 @@
     mov r8, -1          ; fd = -1
     xor r9, r9          ; offset = 0
     syscall
-
+    ret
     ; result (allocated memory pointer) is in RAX
