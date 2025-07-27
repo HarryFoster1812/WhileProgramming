@@ -1,5 +1,6 @@
 #include "codegen.h"
 #include "asm_templates.h"
+#include "ast_walk.h"
 #include "symbol_table.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,8 +57,19 @@ int gen_code(AnalysisContext* ctx, StmtList* ast, FILE* out_file) {
             return 0;
     }
 
+    // REAL CODE GEN
+
+    fprintf(out_file, start_code);
+
+    walk_stmt_list(ast, codegen_callback,
+                   NULL); // Later make ctx a state of the simulated state
+
+    fprintf(out_file, exit_code);
+
     return 1;
 }
+
+void codegen_callback(void* node, const char* node_type, void* ctx) {}
 
 void copy_file_contents(FILE* input_file, FILE* out_file) {
     char buffer[1024];

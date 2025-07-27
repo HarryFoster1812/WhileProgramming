@@ -4,7 +4,7 @@ const char* start_code = "global _start\n"
                          "section .text\n"
                          "_start:\n";
 
-const char* exit_code = "mov rax, 0\n"
+const char* exit_code = "mov rax, 60\n"
                         "xor rdi, rdi\n"
                         "syscall\n";
 

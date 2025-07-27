@@ -19,6 +19,7 @@ extern const int num_registers;
 
 int gen_code(AnalysisContext *ctx, StmtList *ast, FILE *out_file);
 
-void copy_file_contents(FILE *input_file, FILE *out_file);
+void codegen_callback(void *node, const char *node_type, void *ctx);
 
+void copy_file_contents(FILE *input_file, FILE *out_file);
 int copy_snippet(const char *path, FILE *out_file);

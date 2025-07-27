@@ -3,7 +3,6 @@
 #include "codegen.h"
 #include "lexer.h"
 #include "parser.h"
-#include "symbol_table.h"
 #include "tokenstream.h"
 #include "util.h"
 #include <stdbool.h>
