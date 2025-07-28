@@ -24,5 +24,5 @@ const char* call_print_var = "\tlea\trdi, [rel %s_str] \n"
                              "\tlea\trdi, [rel nl]\n"
                              "\tcall\tprint\n";
 
-const char* call_input_var = "lea\trdi, [rel i]\n"
+const char* call_input_var = "lea\trdi, [rel %s]\n"
                              "call\tinput\n";

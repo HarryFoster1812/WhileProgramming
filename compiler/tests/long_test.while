@@ -22,6 +22,7 @@ if ((x <= 10 && y == 2) && !(z == 3)) then {
 while ((x + y <= 20) && !(z == 0)) do {
     x := x + 1;
     y := y - 1;
+    z := z + 1;
     print x;
     print y;
     if (x == y) then {
