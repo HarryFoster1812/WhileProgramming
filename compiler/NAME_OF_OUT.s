@@ -3,8 +3,6 @@ x: dq 0
 x_str: db "x: ", 0
 y: dq 0
 y_str: db "y: ", 0
-z: dq 0
-z_str: db "z: ", 0
 section .data
 nl:     db 10, 0
 
@@ -91,60 +89,60 @@ itoa:
 global _start
 section .text
 _start:
-	mov rax, 1
-push rax
-	mov rax, 1
-cmp rbx, 0
-setne bl
-cmp rax, 0
-setne al
-and al, bl
-movzx rax, al
+startwhile_0:
+	mov rax, [x]
 	push rax
 	mov rax, 0
 	mov rbx, rax
 	pop rax
-	comp rax, rbx
+	cmp rax, rbx
 	mov rax, 0
-	setle al
-push rax
-	mov rax, 1
-push rax
-	mov rax, 1
-cmp rbx, 0
-setne bl
-cmp rax, 0
-setne al
-and al, bl
-movzx rax, al
-
-push rax
+	sete al
+	cmp rax, 0
 	mov rax, 0
+	sete al
+	push rax
+	mov rax, [y]
+	push rax
+	mov rax, 10
 	mov rbx, rax
 	pop rax
-	comp rax, rbx
+	cmp rax, rbx
 	mov rax, 0
 	setle al
-cmp rbx, 0
-setne bl
-cmp rax, 0
-setne al
-and al, bl
-movzx rax, al
+	pop rbx
+	and al, bl
+	movzx rax, al
 	cmp rax, 0
-	je else_0
-
+	je endwhile_0
+	mov rax, [x]
+	push rax
 	mov rax, 1
-	mov [z], rax
-	j endif_0
-
-else_0:
-	mov rax, 3
-	mov [z], rax
-endif_0:
-	lea	rdi, [rel z_str] 
+	mov rbx, rax
+	pop rax
+	sub rax, rbx
+	mov [x], rax
+	mov rax, [y]
+	push rax
+	mov rax, 2
+	mov rbx, rax
+	pop rax
+	add rax, rbx
+	mov [y], rax
+	jmp startwhile_0
+endwhile_0:
+	lea	rdi, [rel x_str] 
 	call	print
-	mov	rdi, [rel z]
+	mov	rdi, [rel x]
+	lea	rsi, [rel itoa_buf]
+	call	itoa
+	lea	rdi,[rel itoa_buf]
+	call	print
+	lea	rdi, [rel nl]
+	call	print
+	lea	rdi, [rel y_str] 
+	call	print
+	mov	rdi, [rel y]
 	lea	rsi, [rel itoa_buf]
 	call	itoa
 	lea	rdi,[rel itoa_buf]

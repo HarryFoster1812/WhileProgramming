@@ -155,7 +155,7 @@ void codegen_callback(void* node, const char* node_type, void* ctx) {
             fprintf(context->outfile, "\tje else_%d\n", id);
             walk_stmt_list(stmt->if_stmt.then_block, codegen_callback, context,
                            TRAVERSAL_POSTORDER, 0);
-            fprintf(context->outfile, "\tj endif_%d\n", id);
+            fprintf(context->outfile, "\tjmp endif_%d\n", id);
 
             fprintf(context->outfile, "else_%d:\n", id);
             walk_stmt_list(stmt->if_stmt.else_block, codegen_callback, context,
@@ -186,7 +186,7 @@ void codegen_callback(void* node, const char* node_type, void* ctx) {
 
             walk_stmt_list(stmt->while_stmt.body, codegen_callback, context,
                            TRAVERSAL_POSTORDER, 0);
-            fprintf(context->outfile, "\tj startwhile_%d\n", id);
+            fprintf(context->outfile, "\tjmp startwhile_%d\n", id);
 
             fprintf(context->outfile, "endwhile_%d:\n", id);
             break;
@@ -208,7 +208,7 @@ void codegen_callback(void* node, const char* node_type, void* ctx) {
 
         case BOOL_EQL: {
             write_binary_op(context, bexpr->comp.left, bexpr->comp.right,
-                            node_type, "comp");
+                            "expr", "cmp");
             fprintf(context->outfile, "\tmov rax, 0\n");
             fprintf(context->outfile, "\tsete al\n");
             break;
@@ -216,7 +216,7 @@ void codegen_callback(void* node, const char* node_type, void* ctx) {
 
         case BOOL_LEQ: {
             write_binary_op(context, bexpr->comp.left, bexpr->comp.right,
-                            node_type, "comp");
+                            "expr", "cmp");
             fprintf(context->outfile, "\tmov rax, 0\n");
             fprintf(context->outfile, "\tsetle al\n");
             break;
@@ -242,16 +242,13 @@ void codegen_callback(void* node, const char* node_type, void* ctx) {
         case BOOL_AND: {
 
             codegen_callback(bexpr->logic.left, node_type, context);
-            fprintf(context->outfile, "push rax\n");
+            fprintf(context->outfile, "\tpush rax\n");
 
-            codegen_callback(bexpr->logic.left, node_type, context);
-            fprintf(context->outfile, "cmp rbx, 0\n");
-            fprintf(context->outfile, "setne bl\n"); // bl = (left != 0)
-            fprintf(context->outfile, "cmp rax, 0\n");
-            fprintf(context->outfile, "setne al\n");   // al = (right != 0)
-            fprintf(context->outfile, "and al, bl\n"); // al = al & bl
+            codegen_callback(bexpr->logic.right, node_type, context);
+            fprintf(context->outfile, "\tpop rbx\n");
+            fprintf(context->outfile, "\tand al, bl\n"); // al = al & bl
             fprintf(context->outfile,
-                    "movzx rax, al\n"); // zero-extend al to rax
+                    "\tmovzx rax, al\n"); // zero-extend al to rax
             break;
         }
 
